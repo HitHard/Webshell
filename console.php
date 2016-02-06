@@ -49,20 +49,21 @@
 			}
 
 			$command=filter_input(INPUT_POST, "cmd");
-			if(isset($_SESSION["Error"]) && $_SESSION["Error"]===1) {
-				$command=$command.' 2>&1';
-			}
 			// binary_path <user> <command>
-			$resultat = shell_exec($_SESSION["HOME"]."/".$exec_binary." ".$_SERVER['REMOTE_USER']." \"".$command."\"");
-			//echo "./exec_cmd ".$_SERVER['REMOTE_USER']." \"".$command."\"";
+			if(isset($_SESSION["Error"]) && $_SESSION["Error"]===1) {
+				$resultat = shell_exec($_SESSION["HOME"]."/".$exec_binary." ".$_SERVER['REMOTE_USER']." \"".$command."\" 2>&1");
+			}
+			else {
+				$resultat = shell_exec($_SESSION["HOME"]."/".$exec_binary." ".$_SERVER['REMOTE_USER']." \"".$command."\"");
+			}
 
 			if (isset($_SESSION["cmds"])){
 				if(isset($dirChanged) && $dirChanged == true) {
-					$_SESSION["cmds"] = $_SERVER['REMOTE_USER']."\$ ".substr($command,0,-5)."<br />".
+					$_SESSION["cmds"] = $_SERVER['REMOTE_USER']."\$ ".$command."<br />".
 							    "Directory changed to " . $_SESSION["dir"] . "<br />".
 							    str_replace(" ", "&nbsp;", htmlentities($resultat)) . "<br /><hr/>" . $_SESSION["cmds"];
 				} else {
-					$_SESSION["cmds"] = $_SERVER['REMOTE_USER']."\$ ".substr($command,0,-5)."<br />".
+					$_SESSION["cmds"] = $_SERVER['REMOTE_USER']."\$ ".$command."<br />".
                                                             str_replace(" ", "&nbsp;", htmlentities($resultat)) . "<br /><hr/>" . $_SESSION["cmds"];
 				}
 			}
