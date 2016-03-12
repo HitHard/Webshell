@@ -12,8 +12,6 @@
 	if(isset($_POST['logout'])) {
 		unset($_POST['logout']);
 		$_SESSION['logout'] = 1;
-		//header('WWW-Authenticate: Basic realm="Login"');
-		//header('HTTP/1.0 401 Unauthorized');
 		header('Location: /');
 		exit(0);
 	}

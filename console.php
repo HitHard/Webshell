@@ -7,29 +7,17 @@
 		unset($_SESSION["cmds"]);
 		unset($_SESSION["dir"]);
 	} else {
-		// If no home is set, set it to current directory
-		if (!isset($_SESSION["HOME"])){
-			$_SESSION["HOME"] = exec("pwd");
+		if (!isset($_SESSION["exec_binary_path"])){
+			$_SESSION["exec_binary_path"] = exec("pwd");
 		}
 		
-		// Force error display
-		if(!isset($_SESSION["Error"])) {
-			$_SESSION["Error"] = 1;
+		// Assuming a home directory exist and it is /home/<username>
+		if (!isset($_SESSION["HOME"])){
+			$_SESSION["HOME"] = "/home/".$_SERVER['REMOTE_USER'];
 		}
-		/*if(isset($_POST["Error"])) {
-			if(isset($_SESSION["Error"])) {
-				if($_SESSION["Error"] === 0) {
-					$_SESSION["Error"] = 1;
-				} else {
-					$_SESSION["Error"] = 0;
-				}
-			} else {
-				$_SESSION["Error"] = 1;
-			}
-		}*/
 		
 		if (!isset($_SESSION["dir"])){
-			$_SESSION["dir"] = ".";
+			$_SESSION["dir"] = $_SESSION["HOME"];
 		}
 		
 		chdir($_SESSION["dir"]);
@@ -43,19 +31,13 @@
 					$_SESSION["dir"] = $_SESSION["HOME"];
 				}
 				$dirChanged = true;
-				//$_SESSION["cmds"] = "<br />Directory changed to " . $_SESSION["dir"] . "<br />" . $_SESSION["cmds"];
 				chdir($_SESSION["dir"]);
-				//exit(0);
 			}
 
 			$command=filter_input(INPUT_POST, "cmd");
+			
 			// binary_path <user> <command>
-			if(isset($_SESSION["Error"]) && $_SESSION["Error"]===1) {
-				$resultat = shell_exec($_SESSION["HOME"]."/".$exec_binary." ".$_SERVER['REMOTE_USER']." \"".$command."\" 2>&1");
-			}
-			else {
-				$resultat = shell_exec($_SESSION["HOME"]."/".$exec_binary." ".$_SERVER['REMOTE_USER']." \"".$command."\"");
-			}
+			$resultat = shell_exec($_SESSION["exec_binary_path"]."/".$exec_binary." ".$_SERVER['REMOTE_USER']." \"".$command."\" 2>&1");
 
 			if (isset($_SESSION["cmds"])){
 				if(isset($dirChanged) && $dirChanged == true) {
@@ -87,9 +69,6 @@
 <body bgcolor="#000000" style="color:#19DA00">
 	<div style="margin-top:20px; font-family: monospace; font-size:14px;">
 		<?php
-			//if(isset($_POST["cmd"]) && $command[0] == "cd")
-				//echo("Directory changed to ".$command[1]);
-
 			if(isset($_SESSION['cmds'])) {
 				echo nl2br($_SESSION['cmds']);
 			}
