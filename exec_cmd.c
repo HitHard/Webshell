@@ -11,7 +11,7 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 
-	if(strlen(argv[2]) > 1024) {
+	if(strlen(argv[2]) > 900) {
 		fprintf(stderr, "Command too long.\n");
 		return 1;
 	}
@@ -28,10 +28,16 @@ int main(int argc, char** argv) {
 	}
 
 	char cmd[1024];
-	sprintf(cmd, "/bin/bash -c \"%s\"", argv[2]);
+	sprintf(cmd, "sudo -u %s /bin/bash -c \"%s\"", argv[1], argv[2]);
 
-	setuid(pwd->pw_uid);
-	setgid(pwd->pw_gid);
+	if(setgid(0) != 0) {
+		fprintf(stderr, "Error on setting gid.\n");
+		return 1;
+	}
+	if(setuid(0) != 0) {
+                fprintf(stderr, "Error on setting uid.\n");
+		return 1;
+	}
 	system(cmd);
 
 	return 0;
